@@ -1,21 +1,25 @@
 package com.obidia.testagrii.presentation.inputdata
 
+import android.graphics.Color
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.viewModels
-import com.obidia.testagrii.data.entity.NoteEntity
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.obidia.testagrii.databinding.FragmentInputDataBinding
 import com.obidia.testagrii.presentation.listnote.NoteViewModel
+import com.obidia.testagrii.presentation.listnote.UiEvent
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 
 class InputDataFragment : DialogFragment() {
 
-    private val noteViewModel by viewModels<NoteViewModel>()
+    private val noteViewModel by activityViewModels<NoteViewModel>()
     private var _binding: FragmentInputDataBinding? = null
     private val binding get() = _binding!!
 
@@ -37,36 +41,40 @@ class InputDataFragment : DialogFragment() {
         binding.floatBtn.setOnClickListener {
             insertDataToDatabase()
         }
-
         return binding.root
     }
 
+
     private fun insertDataToDatabase() {
-        val title = binding.etNoteTitle.text.toString()
-        val category = binding.etKategory.text.toString()
-        val detail = binding.etNoteBody.text.toString()
+        noteViewModel.apply {
+            setAktivitas(binding.etNoteTitle.text.toString())
+            setDetail(binding.etNoteBody.text.toString())
+            setKategori(binding.etKategory.text.toString())
+            setColor(Color.RED)
+            setSelesai(false)
+            noteViewModel.addUser()
+        }
+        observe()
+    }
 
+    private fun observe() {
+        noteViewModel.eventFlow.flowWithLifecycle(lifecycle)
+            .onEach { state -> handleState(state) }
+            .launchIn(lifecycleScope)
+    }
 
-        if (inputCheck(title, category, detail)) {
-            // Create User Object
-            val user = NoteEntity(0, title, detail, category, false)
-            // Add Data to Database
-            noteViewModel.addUser(user)
-            Toast.makeText(requireContext(), "Successfully added!", Toast.LENGTH_LONG).show()
-            // Navigate Back
-            dialog?.dismiss()
-
-        } else {
-            Toast.makeText(requireContext(), "Please fill out all fields.", Toast.LENGTH_LONG)
-                .show()
+    private fun handleState(state: UiEvent) {
+        when (state) {
+            is UiEvent.SaveNote -> {
+                Toast.makeText(requireContext(), "Input Data Berhasil", Toast.LENGTH_LONG).show()
+                dialog?.dismiss()
+            }
+            is UiEvent.ShowSnackbar -> {
+                Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    private fun inputCheck(firstName: String, lastName: String, catgeory: String): Boolean {
-        return !(TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName) && TextUtils.isEmpty(
-            catgeory
-        ))
-    }
 
 }
 

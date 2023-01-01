@@ -3,6 +3,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="txt_tandai_selesai">Tandai Selesai</string>
+    <string name="telah_dikerjakan">Telah dikerjakan</string>
 
     <string-array name="statesProduct">
         <item>Mendesak Penting</item>

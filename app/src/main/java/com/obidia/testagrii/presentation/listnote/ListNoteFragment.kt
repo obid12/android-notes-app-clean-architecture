@@ -1,21 +1,26 @@
 package com.obidia.testagrii.presentation.listnote
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.obidia.testagrii.databinding.FragmentListNoteBinding
 import com.obidia.testagrii.presentation.inputdata.InputDataFragment
 import com.obidia.testagrii.presentation.update.UpdateDataFragment
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
+@AndroidEntryPoint
 class ListNoteFragment : Fragment() {
 
     private lateinit var binding: FragmentListNoteBinding
-    private val noteViewModel: NoteViewModel by viewModels()
+    private val noteViewModel: NoteViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,9 +37,9 @@ class ListNoteFragment : Fragment() {
             2,
             StaggeredGridLayoutManager.VERTICAL
         )
-        noteViewModel.readAllData.observe(viewLifecycleOwner) { note ->
-            adapter.submitData(note)
-        }
+        noteViewModel.readAllData().flowWithLifecycle(lifecycle).onEach {
+            adapter.submitData(it)
+        }.launchIn(lifecycleScope)
 
 
 

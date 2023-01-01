@@ -1,13 +1,12 @@
 package com.obidia.testagrii.presentation.listnote
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.obidia.testagrii.data.entity.NoteEntity
 import com.obidia.testagrii.databinding.ItemNoteBinding
+import com.obidia.testagrii.domain.entity.NoteEntity
 
 
 class ListAdapter(private val onClick: OnClick) :
@@ -35,17 +34,10 @@ class ListAdapter(private val onClick: OnClick) :
 
     class ListViewHolder(private var binding: ItemNoteBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bind(data: NoteEntity) {
             binding.dataEntity = data
-            if (data.selesai) {
-                binding.cardView.setBackgroundColor(Color.GREEN)
-                binding.selesai.setTextColor(Color.BLACK)
-                binding.selesai.text = "Telah Dikerjakan"
-            } else {
-                binding.cardView.setBackgroundColor(Color.WHITE)
-                binding.selesai.setTextColor(Color.parseColor("#FFBB86FC"))
-                binding.selesai.text = "Tandai Selesai"
-            }
+            binding.cardView.setCardBackgroundColor(data.color)
             binding.executePendingBindings()
         }
     }
